@@ -1,46 +1,68 @@
-# 🟦 Esercizio 3 – HC-SR04 in polling
+# 🟦 Esercizio 3 – HC-SR04 (driver a polling)
 
 ## 🎯 Obiettivo
 
-Leggere la distanza da un sensore **HC-SR04** con **Arduino UNO** usando **polling** (attesa attiva) e stampare i risultati sul **Monitor Seriale**. L’obiettivo è consolidare la generazione del burst `TRIG`, la misura della larghezza d’impulso su `ECHO` e la conversione tempo→distanza.
+Realizzare la misura della distanza con un sensore **HC-SR04** su **Arduino UNO** utilizzando un **driver a polling**, progettato in stile **MISRA C++**.
+Lo scopo non è solo ottenere la distanza, ma anche consolidare le buone pratiche di progettazione software:
+
+* generazione del burst `TRIG` con timing garantito,
+* misura robusta della durata del segnale `ECHO`,
+* gestione di timeout per evitare deadlock,
+* conversione tempo → distanza con parametro configurabile (velocità del suono).
 
 ## 📚 Competenze sviluppate
 
-* Gestione segnali digitali a tempo (TRIG/ECHO) con microsecondi.
-* Implementazione di timeout robusti per evitare deadlock in busy-wait.
-* Conversione da **pulse width** alla distanza (speed of sound).
-* Strutturazione di una libreria a oggetti riusabile in ambiente Arduino.
+* Astrazione a classi con interfaccia (`IHCSR04`) e implementazione concreta (`HCSR04_Polling`).
+* Uso di busy-wait controllati con timeout.
+* Parametrizzazione di driver embedded (pin, timeout, min cycle, sound speed).
+* Rispetto di vincoli temporali in microsecondi tramite `micros()` e `delayMicroseconds()`.
+* Stampa diagnostica e validazione dei codici di errore.
 
 ## 🧱 Requisiti hardware
 
 | Componente      | Q.tà | Note                     |
 | --------------- | ---: | ------------------------ |
-| Arduino UNO     |    1 | 5V logic, clock 16 MHz   |
+| Arduino UNO     |    1 | logica 5 V, clock 16 MHz |
 | HC-SR04         |    1 | Vcc 5 V, GND, TRIG, ECHO |
 | Cablaggi dupont |  \~4 | —                        |
 
 > **Wiring consigliato (polling):** `TRIG → D9`, `ECHO → D8`.
-> (Per la versione **interrupt** servirà `ECHO` su `D2` o `D3`, vedi Esercizio 3bis.)
 
 ## 💻 Requisiti software
 
 * **Arduino IDE** (≥ 1.8.19 o IDE 2.x).
-* Porta seriale a 115200 baud.
+* Porta seriale a **115200 baud**.
 
-## 📦 File forniti
+## 📦 Struttura dei file
 
-* `hcsr04.hpp` – classe `HCSR04`.
-* `hcsr04.cpp` – implementazione.
-* `Esercizio3.ino` – sketch esempio (polling).
+* `hcsr04.hpp` – interfaccia astratta `IHCSR04` con configurazione e helpers.
+* `hcsr04_polling.hpp / .cpp` – implementazione concreta **polling-based**.
+* `Esercizio3.ino` – esempio minimale di utilizzo.
 
 ## 🧪 Parametri e formule
 
 * **Velocità del suono** (aria, 20 °C): *c* ≈ **343 m/s** ⇒ **0.0343 cm/μs**.
-* Distanza (cm): `d = (pulse_us × 0.0343) / 2` = `pulse_us × 0.01715`.
-* **Timeout consigliato**: 30 000 μs (copre \~5 m con margine).
+* **Formula distanza (cm):**
 
-## ✏️ Estensioni
+  $$
+  d = \frac{t_{\text{echo}} \times c}{2}
+  $$
+
+  es. `d = pulse_us × 0.01715` con c=343 m/s.
+* **Timeout tipico:** 30 000 μs (\~5 m round-trip).
+* **Idle minimo:** ≥ 60 000 μs per evitare echi multipli (datasheet).
+
+## 🔧 Codici di stato (estratto)
+
+* `HCSR04_OK` – misura valida.
+* `HCSR04_ERR_TIMEOUT_ECHO_START` – nessun fronte di salita rilevato.
+* `HCSR04_ERR_TIMEOUT_ECHO_END` – nessun fronte di discesa entro timeout.
+* `HCSR04_ERR_BUSY` – tentativo di nuova misura troppo ravvicinato.
+* `HCSR04_ERR_BAD_PARAM` – parametro non valido.
+
+## ✏️ Estensioni suggerite
 
 * Media mobile su N letture.
-* Soglia di validità e “Hold-Last-Value”.
-* Compensazione temperatura (parametro opzionale alla classe).
+* Validazione con range min/max e modalità *Hold-Last-Value*.
+* Driver **interrupt-based** (necessita `ECHO` su pin esterni INT: D2/D3).
+* Compensazione dinamica della velocità del suono in base alla temperatura.
