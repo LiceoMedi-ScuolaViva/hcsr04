@@ -16,7 +16,6 @@
 #ifndef HCSR04_POLLING_HPP_
 #define HCSR04_POLLING_HPP_
 
-#include <Arduino.h>
 #include "hcsr04.hpp"
 
 /**

@@ -4,7 +4,6 @@
  * Wiring (UNO): TRIG=D9, ECHO=D8
  */
 
-#include <Arduino.h>
 #include "hcsr04_polling.hpp"
 
 /* Pin mapping */
