@@ -32,7 +32,7 @@ HCSR04_Status HCSR04_Polling::begin(void)
 
 HCSR04_Status HCSR04_Polling::read(float &out_cm)
 {
-  HCSR04_Status status = HCSR04_ERR_BAD_STATE;
+  HCSR04_Status status = canStartShot_();
   float tmp_cm = 0.0F;
 
   /* Enforce minimum cycle time between shots. */

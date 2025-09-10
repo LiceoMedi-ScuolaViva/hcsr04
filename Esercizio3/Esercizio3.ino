@@ -12,7 +12,7 @@ static const uint8_t PIN_TRIG = 9U;
 static const uint8_t PIN_ECHO = 8U;
 
 /* Serial and timing */
-static const unsigned long SERIAL_BAUD = 115200UL;
+static const unsigned long SERIAL_BAUD = 9600UL;
 static const unsigned long TIMEOUT_US  = HCSR04_DEFAULT_TIMEOUT_US;   /* ~30 ms */
 static const unsigned long MIN_CYCLE_US = HCSR04_DEFAULT_MIN_CYCLE_US; /* ~60 ms */
 
@@ -52,7 +52,4 @@ void loop(void)
     Serial.print(F("err="));
     Serial.println(static_cast<int>(st));
   }
-
-  /* pacing ≥ min cycle; driver already enforces canStartShot_() */
-  delay(80U);
 }
