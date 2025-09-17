@@ -1,5 +1,5 @@
 /**
- * @file Esercizio3_interrupt.ino
+ * @file Esercizio3bis.ino
  * @brief Demo per HC-SR04 con driver interrupt-based su Arduino UNO.
  * @version 1.0
  * @date 2025-09-17
