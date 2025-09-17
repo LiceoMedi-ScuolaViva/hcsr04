@@ -11,8 +11,16 @@
  * Serial: 115200 baud
  */
 
-#include <Arduino.h>
-#include "hcsr04_interrupt.hpp"
+#define HCSR04_USE_INTERRUPT   0  /* 1=interrupt, 0=polling */
+
+#if (HCSR04_USE_INTERRUPT == 1)
+  #include "hcsr04_interrupt.hpp"
+  using HCSR04_Driver = HCSR04_Interrupt;
+#else
+  #include "hcsr04_polling.hpp"
+  using HCSR04_Driver = HCSR04_Polling;
+#endif
+
 
 /* ========================= Configurazione ================================= */
 
@@ -23,7 +31,7 @@ static const unsigned long MIN_CYCLE_US = HCSR04_DEFAULT_MIN_CYCLE_US;   /* ~60 
 static const float SOUND_CM_PER_US      = HCSR04_CM_PER_US;
 
 /* Istanza driver (stack-allocated, nessuna allocazione dinamica). */
-static HCSR04_Interrupt g_sonar(PIN_TRIG, PIN_ECHO, TIMEOUT_US, SOUND_CM_PER_US, MIN_CYCLE_US);
+static HCSR04_Driver g_sonar(PIN_TRIG, PIN_ECHO, TIMEOUT_US, SOUND_CM_PER_US, MIN_CYCLE_US);
 
 /* ========================= Helpers ======================================== */
 
@@ -98,18 +106,6 @@ void loop(void)
     Serial.print(cm, 2);
     Serial.print(F(" cm"));
 
-    Serial.print(F(" | Tempo read(): "));
-    Serial.print(elapsed_us);
-    Serial.println(F(" us"));
-  }
-  else if (st == HCSR04_ERR_NOT_READY)
-  {
-    /* Non fare nulla */
-  }
-  else
-  {
-    Serial.print(F("Status: "));
-    printStatus_(st);
     Serial.print(F(" | Tempo read(): "));
     Serial.print(elapsed_us);
     Serial.println(F(" us"));
