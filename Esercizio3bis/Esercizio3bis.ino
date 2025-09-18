@@ -11,7 +11,7 @@
  * Serial: 115200 baud
  */
 
-#define HCSR04_USE_INTERRUPT   0  /* 1=interrupt, 0=polling */
+#define HCSR04_USE_INTERRUPT   1  /* 1=interrupt, 0=polling */
 
 #if (HCSR04_USE_INTERRUPT == 1)
   #include "hcsr04_interrupt.hpp"
